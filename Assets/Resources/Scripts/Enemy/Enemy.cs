@@ -25,16 +25,23 @@ public class Enemy : MonoBehaviour
     [SerializeField] Transform pointB;
     [SerializeField] float pointB_Radius;
     Transform currentPoint;
+    float currentPointDirection;
 
     public EnemyStateMachine stateMachine;
     [SerializeField] EnemyStateID initialState;
 
     [Header("Chase Player Settings")]
-    Transform pointOfVision;
+    [SerializeField] Transform pointOfVision;
     bool playerInSight = false;
+    float directionToPlayer;
+    bool isChasing;
     [SerializeField] float visionDistance;
     [SerializeField] LayerMask playerLayer;
+    Transform player;
 
+    [Header("Checks")]
+    [SerializeField] private Transform groundCheck;
+    [SerializeField] private LayerMask groundLayer;
     #region Start, Update, FixedUpdate
     void Start()
     {
@@ -57,21 +64,32 @@ public class Enemy : MonoBehaviour
         {
             Patrolling();
         }
+
+        if (isChasing)
+        {
+            ChasePlayer();
+        }
     }
     // Update is called once per frame
     void Update()
     {
         stateMachine.Update();
-        if (startPatrol)
-        {
-            stateMachine.ChangeState(EnemyStateID.Patrol);
-        }
-        else
-        {
-            stateMachine.ChangeState(EnemyStateID.Idle);
-        }
-
+        DetectPlayer();
         CheckRightOrLeft();
+
+        if (IsGrounded())
+        {
+            if (playerInSight)
+            {
+                StartChasing();
+                Debug.Log("Chase Time!");
+            }
+            else
+            {
+                StartPatrol();
+                Debug.Log("Patrol time!");
+            }
+        }
     }
 
     #endregion
@@ -88,6 +106,10 @@ public class Enemy : MonoBehaviour
         ChangeAnimationState(Enemy_Hurt);
     }
 
+    public bool IsGrounded()
+    {
+        return Physics2D.OverlapCircle(groundCheck.position, 0.2f, groundLayer);
+    }
     #region Flip
     public void FlipCharacter()
     {
@@ -117,15 +139,20 @@ public class Enemy : MonoBehaviour
         get { return isFacingRight; }
         set { isFacingRight = value; }
     }
+    void StartPatrol()
+    {
+        stateMachine.ChangeState(EnemyStateID.Patrol);
+    }
     void Patrolling()
     {
+        currentPointDirection = currentPoint.position.x - transform.position.x;
         if (currentPoint == pointB)
         {
-            rb.velocity = new Vector2 (moveSpeed, 0);
+            rb.velocity = new Vector2(Mathf.Sign(currentPointDirection) * moveSpeed, 0);
         }
         else
         {
-            rb.velocity = new Vector2 (-moveSpeed, 0);
+            rb.velocity = new Vector2(Mathf.Sign(currentPointDirection) * moveSpeed, 0);
         }
 
         if (currentPoint == pointA && Vector2.Distance(transform.position, currentPoint.position) < 0.5f)
@@ -148,14 +175,37 @@ public class Enemy : MonoBehaviour
     }
     #endregion
 
-    void LookPlayer()
+    void DetectPlayer()
     {
-        Ray ray = new Ray();
-        RaycastHit hit;
+        float direction = transform.localScale.x > 0 ? 1 : -1;
 
-        if (Physics.Raycast(ray, out hit, visionDistance, playerLayer))
+        RaycastHit2D hit = Physics2D.Raycast(pointOfVision.position, Vector2.right * direction, visionDistance, playerLayer);
+        Debug.DrawRay(pointOfVision.position, Vector2.right * direction * visionDistance, Color.red);
+
+        if (hit.collider != null)
         {
-
+            playerInSight = true;
+            player = hit.collider.GetComponentInParent<Player>().transform;
+            directionToPlayer = player.position.x - transform.position.x;
         }
+        else
+        {
+            playerInSight = false;
+        }
+    }
+
+    public bool IsChasing
+    {
+        get { return isChasing; }
+        set { isChasing = value; }
+    }
+    public void StartChasing()
+    {
+        stateMachine.ChangeState(EnemyStateID.Chase);
+    }
+
+    void ChasePlayer()
+    {
+        rb.velocity = new Vector2(Mathf.Sign(directionToPlayer) * moveSpeed, 0);
     }
 }
