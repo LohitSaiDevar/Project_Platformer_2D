@@ -64,6 +64,7 @@ public class Player : MonoBehaviour
     private bool isRunning;
     [SerializeField] float wallJumpingDuration;
     [SerializeField] LayerMask attackLayer;
+    private bool startWallJump;
 
     #region Start, Update, FixedUpdate
     private void Start()
@@ -187,7 +188,7 @@ public class Player : MonoBehaviour
         if (context.performed && IsWallSliding)
         {
             stateMachine.ChangeState(PlayerStateID.WallJump);
-            
+            startWallJump = true;
         }
     }
 
@@ -196,7 +197,6 @@ public class Player : MonoBehaviour
         get { return wallJumpingTimer; }
         set { wallJumpingTimer = value; }
     }
-
     public float WallJumpDuration
     {
         get { return wallJumpingTime; }
@@ -207,6 +207,12 @@ public class Player : MonoBehaviour
     {
         get { return isWallJumping; }
         set { isWallJumping = value; }
+    }
+
+    public bool StartWallJump
+    {
+        get { return startWallJump; }
+        set { startWallJump = value; }
     }
     #endregion
 
@@ -272,7 +278,7 @@ public class Player : MonoBehaviour
 
     public void HandleWallSlide()
     {
-        if (IsWalled() && !IsGrounded())
+        if (IsWalled() && !IsGrounded() && !isWallSliding)
         {
             stateMachine.ChangeState(PlayerStateID.WallSlide);
         }

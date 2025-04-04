@@ -23,7 +23,6 @@ public class PlayerFallState : IPlayerState
         {
             player.stateMachine.ChangeState(PlayerStateID.Idle);
         }
-
         player.HandleWallSlide();
     }
 

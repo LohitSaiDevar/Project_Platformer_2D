@@ -33,6 +33,6 @@ public class EnemyStateMachine
         GetState(currentState)?.Exit(enemy);
         currentState = newState;
         GetState(currentState)?.Enter(enemy);
-        Debug.Log("Changed state to " + newState);
+        //Debug.Log("Changed state to " + newState);
     }
 }

@@ -42,6 +42,7 @@ public class Enemy : MonoBehaviour
     [Header("Checks")]
     [SerializeField] private Transform groundCheck;
     [SerializeField] private LayerMask groundLayer;
+
     #region Start, Update, FixedUpdate
     void Start()
     {
@@ -82,12 +83,12 @@ public class Enemy : MonoBehaviour
             if (playerInSight)
             {
                 StartChasing();
-                Debug.Log("Chase Time!");
+                //Debug.Log("Chase Time!");
             }
             else
             {
                 StartPatrol();
-                Debug.Log("Patrol time!");
+                //Debug.Log("Patrol time!");
             }
         }
     }
@@ -175,6 +176,7 @@ public class Enemy : MonoBehaviour
     }
     #endregion
 
+    #region Chase
     void DetectPlayer()
     {
         float direction = transform.localScale.x > 0 ? 1 : -1;
@@ -208,4 +210,6 @@ public class Enemy : MonoBehaviour
     {
         rb.velocity = new Vector2(Mathf.Sign(directionToPlayer) * moveSpeed, 0);
     }
+
+    #endregion
 }

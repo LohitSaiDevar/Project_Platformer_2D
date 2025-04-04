@@ -1565,7 +1565,7 @@ MonoBehaviour:
   jumpForce: 7.5
   gravityForce: 3
   ascentGravityScale: 1
-  descentGravityScale: 4
+  descentGravityScale: 6
   peakGravityScale: 0.2
   peakThreshold: 0.1
   coyoteTimeDuration: 0.2
@@ -1720,7 +1720,7 @@ Transform:
   m_GameObject: {fileID: 1235293569}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 0.87, y: 0, z: 0}
   m_LocalScale: {x: 13.19, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []

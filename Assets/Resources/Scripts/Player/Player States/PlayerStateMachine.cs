@@ -33,6 +33,6 @@ public class PlayerStateMachine
         GetState(currentState)?.Exit(player);
         currentState = newState;
         GetState(currentState)?.Enter(player);
-        //Debug.Log("Changed state to " + newState);
+        Debug.Log("Changed state to " + newState);
     }
 }

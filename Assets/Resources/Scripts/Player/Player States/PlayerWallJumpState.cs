@@ -12,6 +12,7 @@ public class PlayerWallJumpState : IPlayerState
 
     public void Enter(Player player)
     {
+        player.StartWallJump = false;
         player.IsWallJumping = true;
         player.ChangeAnimationState(Player.Player_Jump);
         // Apply jump force once instead of every frame

@@ -12,7 +12,7 @@ public class EnemyPatrolState : IEnemyState
     public void Enter(Enemy enemy)
     {
         enemy.IsPatrolling = true;
-        Debug.Log("Started Patrol");
+        //Debug.Log("Started Patrol");
     }
 
     public void Update(Enemy enemy)
