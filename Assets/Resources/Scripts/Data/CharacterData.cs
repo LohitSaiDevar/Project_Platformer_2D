@@ -6,9 +6,6 @@ using UnityEngine;
 public class CharacterData : ScriptableObject
 {
     public string Name;
-    public float MaxHP;
-    public float MinHP;
-    public float MaxDef;
-    public float MinDef;
-    public float MaxDamagePerHit;
+    public int MaxHealthPoints;
+    public int MaxDamagePerHit;
 }

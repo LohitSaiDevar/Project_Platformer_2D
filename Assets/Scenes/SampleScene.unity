@@ -1725,6 +1725,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   rb: {fileID: 1033206169}
+  playerData: {fileID: 11400000, guid: a2acc4944ece21f4ea60d7d1c2f3c2e1, type: 2}
   moveSpeed: 8
   jumpForce: 7.5
   gravityForce: 3

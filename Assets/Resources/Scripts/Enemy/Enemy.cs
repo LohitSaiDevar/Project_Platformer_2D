@@ -15,6 +15,7 @@ public class Enemy : MonoBehaviour
     public const string Enemy_Attack = "Enemy_Attack";
     public const string Enemy_Hurt = "Enemy_Hurt";
     public const string Enemy_Fall = "Enemy_Fall";
+    public const string Enemy_Death = "Enemy_Death";
 
     [Header("Movement Settings")]
     bool isPatrolling;
@@ -53,6 +54,10 @@ public class Enemy : MonoBehaviour
     [SerializeField] LayerMask attackLayer;
     private bool isAttacking;
 
+
+    [Header("Health System")]
+    HealthSystem_Enemy healthSystem;
+    bool isDead;
     #region Start, Update, FixedUpdate
     void Start()
     {
@@ -64,9 +69,12 @@ public class Enemy : MonoBehaviour
         stateMachine.RegisterState(new EnemyAttackState());
         stateMachine.RegisterState(new EnemyPatrolState());
         stateMachine.RegisterState(new EnemyChaseState());
+        stateMachine.RegisterState(new EnemyDeathState());
         stateMachine.ChangeState(initialState);
 
         currentPoint = pointA;
+
+        healthSystem = new HealthSystem_Enemy(100);
     }
     // Update is called once per frame
     void Update()
@@ -78,7 +86,7 @@ public class Enemy : MonoBehaviour
     private void FixedUpdate()
     {
         stateMachine.FixedUpdate();
-        if (!IsHurt)
+        if (!isHurt && !isDead)
         {
             DetectPlayer();
 
@@ -99,12 +107,25 @@ public class Enemy : MonoBehaviour
     }
 
     #region Attack, Hurt
-    public void TakeDamage(float damage)
+    public void TakeDamage(int damage)
     {
-        Debug.Log("Damage dealt: " +  damage);
-        ChangeAnimationState(Enemy_Hurt);
+        healthSystem.DamageTaken(damage);
+        Debug.Log("Damage% dealt: " +  healthSystem.GetHealthPercent());
+        stateMachine.ChangeState(EnemyStateID.Hurt);
+
     }
 
+    public HealthSystem_Enemy HealthSystem
+    {
+        get { return healthSystem; }
+        set { healthSystem = value; }
+    }
+
+    public bool IsDead
+    {
+        get { return isDead; }
+        set { isDead = value; }
+    }
     public void DealDamage()
     {
         Collider2D[] hits = Physics2D.OverlapCircleAll(attackPoint.transform.position, attackRange, attackLayer);

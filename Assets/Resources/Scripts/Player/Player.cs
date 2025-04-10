@@ -6,7 +6,9 @@ using UnityEngine.UI;
 
 public class Player : MonoBehaviour
 {
+    [Header("Character Data")]
     public Rigidbody2D rb;
+    [SerializeField] CharacterData playerData;
     bool isIdle;
 
     [Header("Movement Settings")]
@@ -242,8 +244,10 @@ public class Player : MonoBehaviour
         foreach (Collider2D hit in hits)
         {
             Enemy enemy = hit.GetComponent<Enemy>();
-            enemy.stateMachine.ChangeState(EnemyStateID.Hurt);
-            Debug.Log("Enemy has been hit: " + hit.gameObject.name); // Optional debug
+            if (!enemy.IsDead)
+            {
+                enemy.TakeDamage(playerData.MaxDamagePerHit);
+            }
         }
     }
 

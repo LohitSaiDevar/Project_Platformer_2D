@@ -11,7 +11,6 @@ public class EnemyHurtState : IEnemyState
     public void Enter(Enemy enemy)
     {
         enemy.IsHurt = true;
-        enemy.TakeDamage(10);
         enemy.ChangeAnimationState(Enemy.Enemy_Hurt);
 
         float knockBackDirection = enemy.IsFacingRight ? -1 : 1;
@@ -22,9 +21,16 @@ public class EnemyHurtState : IEnemyState
     }
     public void Update(Enemy enemy)
     {
-        if (enemy.animator.GetCurrentAnimatorStateInfo(0).normalizedTime >= 1)
+        if (enemy.HealthSystem.GetHealthPercent() <= 0)
         {
-            enemy.stateMachine.ChangeState(EnemyStateID.Idle);
+            enemy.stateMachine.ChangeState(EnemyStateID.Death);
+        }
+        else
+        {
+            if (enemy.animator.GetCurrentAnimatorStateInfo(0).normalizedTime >= 1)
+            {
+                enemy.stateMachine.ChangeState(EnemyStateID.Idle);
+            }
         }
     }
     public void Exit(Enemy enemy)

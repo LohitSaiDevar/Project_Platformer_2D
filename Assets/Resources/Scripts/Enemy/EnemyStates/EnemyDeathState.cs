@@ -11,11 +11,15 @@ public class EnemyDeathState : IEnemyState
 
     public void Enter(Enemy enemy)
     {
-        
+        enemy.IsDead = true;
+        enemy.ChangeAnimationState(Enemy.Enemy_Death);
     }
     public void Update(Enemy enemy)
     {
-        
+        if (enemy.animator.GetCurrentAnimatorStateInfo(0).normalizedTime >= 1)
+        {
+            enemy.StartCoroutine(DestroyDelay(enemy));
+        }
     }
 
     public void FixedUpdate(Enemy enemy)
@@ -25,6 +29,12 @@ public class EnemyDeathState : IEnemyState
 
     public void Exit(Enemy enemy)
     {
-        
+        enemy.IsDead = false;
+    }
+
+    IEnumerator DestroyDelay(Enemy enemy)
+    {
+        yield return new WaitForSeconds(1);
+        Enemy.Destroy(enemy.gameObject);
     }
 }
