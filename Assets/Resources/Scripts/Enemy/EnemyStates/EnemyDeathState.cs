@@ -34,7 +34,7 @@ public class EnemyDeathState : IEnemyState
 
     IEnumerator DestroyDelay(Enemy enemy)
     {
-        yield return new WaitForSeconds(1);
+        yield return new WaitForSeconds(0.5f);
         Enemy.Destroy(enemy.gameObject);
     }
 }
