@@ -33,4 +33,9 @@ public class PlayerRunState : IPlayerState
     {
         player.IsRunning = false;
     }
+
+    public void FixedUpdate(Player player)
+    {
+        player.MovePlayer();
+    }
 }

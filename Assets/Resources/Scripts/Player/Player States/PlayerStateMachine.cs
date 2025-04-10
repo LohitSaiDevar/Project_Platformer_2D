@@ -28,6 +28,11 @@ public class PlayerStateMachine
         GetState(currentState)?.Update(player);
     }
 
+    public void FixedUpdate()
+    {
+        GetState(currentState)?.FixedUpdate(player);
+    }
+
     public void ChangeState(PlayerStateID newState)
     {
         GetState(currentState)?.Exit(player);

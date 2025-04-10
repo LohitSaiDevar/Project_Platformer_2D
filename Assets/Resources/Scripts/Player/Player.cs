@@ -1,7 +1,8 @@
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
-using static UnityEditor.Searcher.SearcherWindow.Alignment;
+using UnityEngine.UI;
 
 public class Player : MonoBehaviour
 {
@@ -43,9 +44,9 @@ public class Player : MonoBehaviour
     [SerializeField] private LayerMask wallLayer;
 
     [Header("Combat")]
-    public Transform attackPoint;
-    public float attackRange = 0.5f;
-    public LayerMask enemyLayers;
+    [SerializeField] Transform attackPoint;
+    [SerializeField] float attackRange = 0.5f;
+    [SerializeField] LayerMask enemyLayers;
 
     [Header("Animation")]
     public Animator animator;
@@ -57,6 +58,8 @@ public class Player : MonoBehaviour
     public const string Player_Jump = "Player_Jump";
     public const string Player_Fall = "Player_Fall";
     public const string Player_WallSlide = "Player_WallSlide";
+    public const string Player_Hurt = "Player_Hurt";
+    public const string Player_Death = "Player_Death";
 
     [Header("State Machine")]
     public PlayerStateMachine stateMachine;
@@ -66,11 +69,21 @@ public class Player : MonoBehaviour
     [SerializeField] LayerMask attackLayer;
     private bool startWallJump;
 
+
+    [Header("Health System")]
+    [SerializeField] GameObject healthPoint;
+    List<GameObject> healthPoints;
+    [SerializeField] Transform healthUICanvas;
+    bool isHurt;
+    bool isDead;
+
     #region Start, Update, FixedUpdate
     private void Start()
     {
         rb = GetComponent<Rigidbody2D>();
         RegisterAllStates();
+        healthPoints = new List<GameObject>();
+        InitializeHP(3);
     }
 
     private void Update()
@@ -86,16 +99,11 @@ public class Player : MonoBehaviour
 
     private void FixedUpdate()
     {
-
+        stateMachine.FixedUpdate();
         AdjustGravity();
         //HandleCoyoteTime();
         HandleWallSlide();
         //Debug.Log("Wall Jumping Direction: " + wallJumpingDirection);
-
-        if (isRunning || isJumping || isFalling)
-        {
-            MovePlayer();
-        }
         //Debug.Log("Velocity Y: " + rb.velocity.y);
     }
 
@@ -109,6 +117,8 @@ public class Player : MonoBehaviour
         stateMachine.RegisterState(new PlayerWallJumpState());
         stateMachine.RegisterState(new PlayerWallSlideState());
         stateMachine.RegisterState(new PlayerAttackState());
+        stateMachine.RegisterState(new PlayerHurtState());
+        stateMachine.RegisterState(new PlayerDeathState());
         stateMachine.ChangeState(initialState);
     }
     #endregion
@@ -152,7 +162,7 @@ public class Player : MonoBehaviour
     #region Jump
     public void Jump(InputAction.CallbackContext context)
     {
-        if (context.performed && IsGrounded())
+        if (context.performed && IsGrounded() && !isDead)
         {
             stateMachine.ChangeState(PlayerStateID.Jump);
         }
@@ -219,7 +229,7 @@ public class Player : MonoBehaviour
     #region Attack
     public void Attack(InputAction.CallbackContext context)
     {
-        if (context.performed && IsGrounded())
+        if (context.performed && IsGrounded() && !isDead)
         {
             stateMachine.ChangeState(PlayerStateID.Attack);
         }
@@ -236,7 +246,41 @@ public class Player : MonoBehaviour
             Debug.Log("Enemy has been hit: " + hit.gameObject.name); // Optional debug
         }
     }
+
+    private void OnDrawGizmosSelected()
+    {
+        if (attackPoint != null)
+        {
+            Gizmos.DrawWireSphere(attackPoint.position, attackRange);
+        }
+    }
     #endregion
+
+    private void InitializeHP(float totalHP)
+    {
+        float spacing = 75;
+        Vector3 startPos = new Vector3 (50, -50, 0);
+        
+
+        for (int i = 0; i < totalHP; i++)
+        {
+            GameObject hp = Instantiate(healthPoint, healthUICanvas);
+            hp.GetComponent<RectTransform>().anchoredPosition = startPos + new Vector3(spacing * i, 0, 0);
+            healthPoints.Add(hp);
+        }
+    }
+
+    public List<GameObject> HealthPoints
+    {
+        get { return healthPoints; }
+        set { healthPoints = value; }
+    }
+
+    public bool IsDead
+    {
+        get { return isDead; }
+        set { isDead = value; }
+    }
     public IEnumerator StopMoving()
     {
         IsMoving = false;
@@ -326,12 +370,12 @@ public class Player : MonoBehaviour
     {
         return Physics2D.OverlapCircle(wallCheck.position, 0.2f, wallLayer);
     }
+    
+    
 
-    private void OnDrawGizmosSelected()
+    public bool IsHurt
     {
-        if (attackPoint != null)
-        {
-            Gizmos.DrawWireSphere(attackPoint.position, attackRange);
-        }
+        get { return isHurt; }
+        set { isHurt = value; }
     }
 }

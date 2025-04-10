@@ -11,7 +11,8 @@ public enum PlayerStateID
     WallJump,
     WallSlide,
     Hurt,
-    Fall
+    Fall,
+    Death
 }
 
 public interface IPlayerState
@@ -19,5 +20,6 @@ public interface IPlayerState
     PlayerStateID GetID();
     void Enter(Player player);
     void Update(Player player);
+    void FixedUpdate(Player player);
     void Exit(Player player);
 }

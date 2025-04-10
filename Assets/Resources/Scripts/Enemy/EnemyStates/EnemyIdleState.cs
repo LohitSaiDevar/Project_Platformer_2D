@@ -14,10 +14,23 @@ public class EnemyIdleState : IEnemyState
     }
     public void Update(Enemy enemy)
     {
+        if (enemy.IsGrounded() && !enemy.PlayerInSight)
+        {
+            enemy.StartPatrol();
+        }
 
+        if (enemy.IsGrounded() && enemy.PlayerInSight)
+        {
+            enemy.StartChasing();
+        }
     }
     public void Exit(Enemy enemy)
     {
 
+    }
+
+    public void FixedUpdate(Enemy enemy)
+    {
+        
     }
 }

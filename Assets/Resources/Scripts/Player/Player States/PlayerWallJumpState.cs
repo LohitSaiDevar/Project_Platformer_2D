@@ -15,13 +15,13 @@ public class PlayerWallJumpState : IPlayerState
         player.StartWallJump = false;
         player.IsWallJumping = true;
         player.ChangeAnimationState(Player.Player_Jump);
-        // Apply jump force once instead of every frame
         player.rb.velocity = new Vector2(player.wallJumpingDirection * player.wallJumpingPower.x, player.wallJumpingPower.y);
         if ((player.wallJumpingDirection > 0 && !player.IsFacingRight) ||
             (player.wallJumpingDirection < 0 && player.IsFacingRight))
         {
             player.FlipCharacter_Alt();
         }
+        // Apply jump force once instead of every frame
     }
 
     public void Update(Player player)
@@ -36,5 +36,10 @@ public class PlayerWallJumpState : IPlayerState
     public void Exit(Player player)
     {
         player.IsWallJumping = false;
+    }
+
+    public void FixedUpdate(Player player)
+    {
+        
     }
 }

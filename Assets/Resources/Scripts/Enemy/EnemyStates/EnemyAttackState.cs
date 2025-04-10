@@ -10,7 +10,9 @@ public class EnemyAttackState : IEnemyState
     }
     public void Enter(Enemy enemy)
     {
+        enemy.IsAttacking = true;
         enemy.ChangeAnimationState(Enemy.Enemy_Attack);
+        
     }
     public void Update(Enemy enemy)
     {
@@ -21,6 +23,11 @@ public class EnemyAttackState : IEnemyState
     }
     public void Exit(Enemy enemy)
     {
+        enemy.IsAttacking = false;
+    }
 
+    public void FixedUpdate(Enemy enemy)
+    {
+        
     }
 }

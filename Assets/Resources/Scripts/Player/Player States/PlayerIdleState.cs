@@ -40,4 +40,9 @@ public class PlayerIdleState : IPlayerState
         player.animator.SetFloat("MoveSpeed", 0);
         player.animator.SetBool("isWallSliding", false);
     }
+
+    public void FixedUpdate(Player player)
+    {
+        
+    }
 }

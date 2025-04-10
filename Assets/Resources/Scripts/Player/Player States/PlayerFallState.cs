@@ -30,4 +30,9 @@ public class PlayerFallState : IPlayerState
     {
         player.IsFalling = false;
     }
+
+    public void FixedUpdate(Player player)
+    {
+        player.MovePlayer();
+    }
 }

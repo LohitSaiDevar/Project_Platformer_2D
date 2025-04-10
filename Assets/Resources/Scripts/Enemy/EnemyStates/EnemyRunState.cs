@@ -20,4 +20,9 @@ public class EnemyRunState : IEnemyState
     {
 
     }
+
+    public void FixedUpdate(Enemy enemy)
+    {
+        
+    }
 }

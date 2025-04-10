@@ -18,6 +18,10 @@ public class EnemyChaseState : IEnemyState
     {
         enemy.ChangeAnimationState(Enemy.Enemy_Run);
 
+        if (!enemy.PlayerInSight)
+        {
+            enemy.StartPatrol();
+        }
     }
 
     public void Exit(Enemy enemy)
@@ -25,4 +29,8 @@ public class EnemyChaseState : IEnemyState
         enemy.IsChasing = false;
     }
 
+    public void FixedUpdate(Enemy enemy)
+    {
+        enemy.ChasePlayer();
+    }
 }

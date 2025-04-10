@@ -29,4 +29,9 @@ public class PlayerAttackState : IPlayerState
     {
         
     }
+
+    public void FixedUpdate(Player player)
+    {
+        
+    }
 }

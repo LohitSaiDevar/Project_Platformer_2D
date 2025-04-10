@@ -37,11 +37,21 @@ public class Enemy : MonoBehaviour
     bool isChasing;
     [SerializeField] float visionDistance;
     [SerializeField] LayerMask playerLayer;
-    Transform player;
+    Player player;
 
     [Header("Checks")]
     [SerializeField] private Transform groundCheck;
     [SerializeField] private LayerMask groundLayer;
+
+    [SerializeField] float knockBackForce;
+    bool isHurt;
+
+
+    [Header("Attack Settings")]
+    [SerializeField] Transform attackPoint;
+    [SerializeField] float attackRange;
+    [SerializeField] LayerMask attackLayer;
+    private bool isAttacking;
 
     #region Start, Update, FixedUpdate
     void Start()
@@ -58,37 +68,23 @@ public class Enemy : MonoBehaviour
 
         currentPoint = pointA;
     }
-
-    private void FixedUpdate()
-    {
-        if (isPatrolling)
-        {
-            Patrolling();
-        }
-
-        if (isChasing)
-        {
-            ChasePlayer();
-        }
-    }
     // Update is called once per frame
     void Update()
     {
         stateMachine.Update();
-        DetectPlayer();
-        CheckRightOrLeft();
+        
+    }
 
-        if (IsGrounded())
+    private void FixedUpdate()
+    {
+        stateMachine.FixedUpdate();
+        if (!IsHurt)
         {
-            if (playerInSight)
+            DetectPlayer();
+
+            if (!IsAttacking)
             {
-                StartChasing();
-                //Debug.Log("Chase Time!");
-            }
-            else
-            {
-                StartPatrol();
-                //Debug.Log("Patrol time!");
+                CheckRightOrLeft();
             }
         }
     }
@@ -101,11 +97,32 @@ public class Enemy : MonoBehaviour
         currentAnimationState = newAnimationState;
         //Debug.Log("Current Animation: " +  newAnimationState);
     }
+
+    #region Attack, Hurt
     public void TakeDamage(float damage)
     {
         Debug.Log("Damage dealt: " +  damage);
         ChangeAnimationState(Enemy_Hurt);
     }
+
+    public void DealDamage()
+    {
+        Collider2D[] hits = Physics2D.OverlapCircleAll(attackPoint.transform.position, attackRange, attackLayer);
+
+        foreach (Collider2D hit in hits)
+        {
+            Player player = hit.GetComponentInParent<Player>();
+            player.stateMachine.ChangeState(PlayerStateID.Hurt);
+            Debug.Log("Player has been hit: " + hit.gameObject.name); // Optional debug
+        }
+    }
+
+    public bool IsAttacking
+    {
+        get { return isAttacking; }
+        set { isAttacking = value; }
+    }
+    #endregion
 
     public bool IsGrounded()
     {
@@ -123,9 +140,14 @@ public class Enemy : MonoBehaviour
     void CheckRightOrLeft()
     {
         if (rb.velocity.x > 0 && !isFacingRight)
+        {
             FlipCharacter();
+        }
+            
         else if (rb.velocity.x < 0 && isFacingRight)
+        {
             FlipCharacter();
+        }
     }
     #endregion
 
@@ -140,11 +162,11 @@ public class Enemy : MonoBehaviour
         get { return isFacingRight; }
         set { isFacingRight = value; }
     }
-    void StartPatrol()
+    public void StartPatrol()
     {
         stateMachine.ChangeState(EnemyStateID.Patrol);
     }
-    void Patrolling()
+    public void Patrolling()
     {
         currentPointDirection = currentPoint.position.x - transform.position.x;
         if (currentPoint == pointB)
@@ -166,13 +188,20 @@ public class Enemy : MonoBehaviour
             currentPoint = pointA;
         }
     }
+    #endregion
 
+    #region Gizmos
     private void OnDrawGizmosSelected()
     {
         Gizmos.DrawWireSphere(pointA.position, pointA_Radius);
         Gizmos.DrawWireSphere(pointB.position, pointB_Radius);
 
         Gizmos.DrawLine(pointA.position, pointB.position);
+
+        if (attackPoint != null)
+        {
+            Gizmos.DrawWireSphere(attackPoint.position, attackRange);
+        }
     }
     #endregion
 
@@ -184,11 +213,17 @@ public class Enemy : MonoBehaviour
         RaycastHit2D hit = Physics2D.Raycast(pointOfVision.position, Vector2.right * direction, visionDistance, playerLayer);
         Debug.DrawRay(pointOfVision.position, Vector2.right * direction * visionDistance, Color.red);
 
+
         if (hit.collider != null)
         {
             playerInSight = true;
-            player = hit.collider.GetComponentInParent<Player>().transform;
-            directionToPlayer = player.position.x - transform.position.x;
+            player = hit.collider.GetComponentInParent<Player>();
+            directionToPlayer = player.transform.position.x - transform.position.x;
+            if (Vector2.Distance(transform.position, player.transform.position) < 1f && !isAttacking && !player.IsDead)
+            {
+                //Debug.Log("Working");
+                stateMachine.ChangeState(EnemyStateID.Attack);
+            }
         }
         else
         {
@@ -196,6 +231,11 @@ public class Enemy : MonoBehaviour
         }
     }
 
+    public bool PlayerInSight
+    {
+        get { return playerInSight; }
+        set { playerInSight = value; }
+    }
     public bool IsChasing
     {
         get { return isChasing; }
@@ -206,10 +246,22 @@ public class Enemy : MonoBehaviour
         stateMachine.ChangeState(EnemyStateID.Chase);
     }
 
-    void ChasePlayer()
+    public void ChasePlayer()
     {
         rb.velocity = new Vector2(Mathf.Sign(directionToPlayer) * moveSpeed, 0);
     }
 
     #endregion
+
+    public float KnockBackForce
+    {
+        get { return knockBackForce; }
+        set { knockBackForce = value; }
+    }
+
+    public bool IsHurt
+    {
+        get { return isHurt; }
+        set { isHurt = value; }
+    }
 }

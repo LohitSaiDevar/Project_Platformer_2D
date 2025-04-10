@@ -10,8 +10,15 @@ public class EnemyHurtState : IEnemyState
     }
     public void Enter(Enemy enemy)
     {
+        enemy.IsHurt = true;
         enemy.TakeDamage(10);
         enemy.ChangeAnimationState(Enemy.Enemy_Hurt);
+
+        float knockBackDirection = enemy.IsFacingRight ? -1 : 1;
+        float knockBackForce = enemy.KnockBackForce;
+
+        enemy.rb.velocity = Vector2.zero; // Optional, only if needed
+        enemy.rb.AddForce(Vector2.right * knockBackDirection * knockBackForce, ForceMode2D.Impulse);
     }
     public void Update(Enemy enemy)
     {
@@ -22,6 +29,17 @@ public class EnemyHurtState : IEnemyState
     }
     public void Exit(Enemy enemy)
     {
+        enemy.StartCoroutine(HurtDelay(enemy));
+    }
 
+    IEnumerator HurtDelay(Enemy enemy)
+    {
+        yield return new WaitForSeconds(1);
+        enemy.IsHurt = false;
+    }
+
+    public void FixedUpdate(Enemy enemy)
+    {
+        
     }
 }

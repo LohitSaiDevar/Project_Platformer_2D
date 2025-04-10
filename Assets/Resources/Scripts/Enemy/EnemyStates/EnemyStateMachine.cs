@@ -28,6 +28,11 @@ public class EnemyStateMachine
         GetState(currentState)?.Update(enemy);
     }
 
+    public void FixedUpdate()
+    {
+        GetState(currentState).FixedUpdate(enemy);
+    }
+
     public void ChangeState(EnemyStateID newState)
     {
         GetState(currentState)?.Exit(enemy);

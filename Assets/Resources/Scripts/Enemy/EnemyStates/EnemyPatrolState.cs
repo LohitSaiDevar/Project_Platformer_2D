@@ -18,10 +18,22 @@ public class EnemyPatrolState : IEnemyState
     public void Update(Enemy enemy)
     {
         enemy.ChangeAnimationState(Enemy.Enemy_Run);
+
+        if (enemy.PlayerInSight)
+        {
+            enemy.StartChasing();
+        }
+    }
+
+    public void FixedUpdate(Enemy enemy)
+    {
+        enemy.Patrolling();
     }
 
     public void Exit(Enemy enemy)
     {
         enemy.IsPatrolling = false;
     }
+
+    
 }

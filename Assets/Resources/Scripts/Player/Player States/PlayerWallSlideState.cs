@@ -21,6 +21,21 @@ public class PlayerWallSlideState : IPlayerState
 
     public void Update(Player player)
     {
+        //Debug.Log("VelocityY: " + player.rb.velocity.y);
+
+        if (player.IsGrounded())
+        {
+            player.stateMachine.ChangeState(PlayerStateID.Idle);
+        }
+    }
+
+    public void Exit(Player player)
+    {
+        player.IsWallSliding = false;
+    }
+
+    public void FixedUpdate(Player player)
+    {
         wallSlideTimer += Time.deltaTime;
         float fallSpeed;
         if (wallSlideTimer < 2)
@@ -36,16 +51,5 @@ public class PlayerWallSlideState : IPlayerState
         }
 
         player.rb.velocity = new Vector2(player.rb.velocity.x, fallSpeed);
-        //Debug.Log("VelocityY: " + player.rb.velocity.y);
-
-        if (player.IsGrounded())
-        {
-            player.stateMachine.ChangeState(PlayerStateID.Idle);
-        }
-    }
-
-    public void Exit(Player player)
-    {
-        player.IsWallSliding = false;
     }
 }

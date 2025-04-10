@@ -29,4 +29,9 @@ public class PlayerJumpState : IPlayerState
     {
         player.IsJumping = false;
     }
+
+    public void FixedUpdate(Player player)
+    {
+        player.MovePlayer();
+    }
 }
