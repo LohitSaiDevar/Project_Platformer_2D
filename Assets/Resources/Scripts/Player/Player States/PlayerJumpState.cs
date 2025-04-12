@@ -17,7 +17,7 @@ public class PlayerJumpState : IPlayerState
 
     public void Update(Player player)
     {
-        if (player.IsJumping && player.rb.velocity.y < 0)
+        if (player.IsJumping && player.rb.velocity.y < 1)
         {
             player.stateMachine.ChangeState(PlayerStateID.Fall);
         }

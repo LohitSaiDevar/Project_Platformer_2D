@@ -57,6 +57,7 @@ public class Enemy : MonoBehaviour
 
     [Header("Health System")]
     HealthSystem_Enemy healthSystem;
+    [SerializeField] EnemyData enemyData;
     bool isDead;
     #region Start, Update, FixedUpdate
     void Start()
@@ -74,7 +75,7 @@ public class Enemy : MonoBehaviour
 
         currentPoint = pointA;
 
-        healthSystem = new HealthSystem_Enemy(100);
+        healthSystem = new HealthSystem_Enemy(enemyData.MaxHP);
     }
     // Update is called once per frame
     void Update()

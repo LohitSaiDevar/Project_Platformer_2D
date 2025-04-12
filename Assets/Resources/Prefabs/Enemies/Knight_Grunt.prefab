@@ -104,6 +104,7 @@ MonoBehaviour:
   attackLayer:
     serializedVersion: 2
     m_Bits: 256
+  enemyData: {fileID: 11400000, guid: cb5de4854724b714cac2b0c5aba67f44, type: 2}
 --- !u!61 &7607073606498239626
 BoxCollider2D:
   m_ObjectHideFlags: 0
