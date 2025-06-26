@@ -1,37 +1,40 @@
 using UnityEngine;
 
-public class PlayerJumpState : IPlayerState
+namespace Player
 {
-    public PlayerStateID GetID()
+    public class PlayerJumpState : IPlayerState
     {
-        return PlayerStateID.Jump;
-    }
-
-    public void Enter(Player player)
-    {
-        //Debug.Log("Jumping State");
-        player.IsJumping = true;
-        player.ChangeAnimationState(Player.Player_Jump);
-        player.rb.AddForce(Vector3.up * player.JumpForce, ForceMode2D.Impulse);
-    }
-
-    public void Update(Player player)
-    {
-        if (player.IsJumping && player.rb.velocity.y < 1)
+        public PlayerStateID GetID()
         {
-            player.stateMachine.ChangeState(PlayerStateID.Fall);
+            return PlayerStateID.Jump;
         }
 
-        player.HandleWallSlide();
-    }
+        public void Enter(PlayerController player)
+        {
+            //Debug.Log("Jumping State");
+            player.IsJumping = true;
+            player.ChangeAnimationState(PlayerController.Player_Jump);
+            player.rb.AddForce(Vector3.up * player.JumpForce, ForceMode2D.Impulse);
+        }
 
-    public void Exit(Player player)
-    {
-        player.IsJumping = false;
-    }
+        public void Update(PlayerController player)
+        {
+            if (player.IsJumping && player.animator.GetCurrentAnimatorStateInfo(0).normalizedTime >= 1f)
+            {
+                player.stateMachine.ChangeState(PlayerStateID.Fall);
+            }
 
-    public void FixedUpdate(Player player)
-    {
-        player.MovePlayer();
+            player.HandleWallSlide();
+        }
+
+        public void Exit(PlayerController player)
+        {
+            player.IsJumping = false;
+        }
+
+        public void FixedUpdate(PlayerController player)
+        {
+            player.MovePlayer();
+        }
     }
 }

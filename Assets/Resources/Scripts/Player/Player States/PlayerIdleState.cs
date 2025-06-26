@@ -2,47 +2,51 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class PlayerIdleState : IPlayerState
+namespace Player
 {
-    public PlayerStateID GetID()
+    public class PlayerIdleState : IPlayerState
     {
-        return PlayerStateID.Idle;
-    }
-
-    public void Enter(Player player)
-    {
-        //ResetAllAnimations(player);
-        player.ChangeAnimationState(Player.Player_Idle);
-    }
-
-    public void Update(Player player)
-    {
-        if (Mathf.Abs(player.HorizontalInput) > 0 && player.IsGrounded())
+        public PlayerStateID GetID()
         {
-            player.stateMachine.ChangeState(PlayerStateID.Run);
+            return PlayerStateID.Idle;
         }
 
-        if (!player.IsGrounded() && player.rb.velocity.y < 0)
+        public void Enter(PlayerController player)
         {
-            player.stateMachine.ChangeState(PlayerStateID.Fall);
+            //ResetAllAnimations(player);
+            player.ChangeAnimationState(PlayerController.Player_Idle);
+            player.rb.velocity = new Vector2(0, 0);
         }
-    }
 
-    public void Exit(Player player)
-    {
-        player.animator.SetBool("isGrounded", false);
-    }
+        public void Update(PlayerController player)
+        {
+            if (Mathf.Abs(player.HorizontalInput) > 0 && player.IsGrounded() && !player.IsJumping)
+            {
+                player.stateMachine.ChangeState(PlayerStateID.Run);
+            }
 
-    void ResetAllAnimations(Player player)
-    {
-        player.animator.SetBool("isGrounded", true);
-        player.animator.SetFloat("VelocityY", 0);
-        player.animator.SetFloat("MoveSpeed", 0);
-        player.animator.SetBool("isWallSliding", false);
-    }
+            if (!player.IsGrounded() && player.rb.velocity.y < 0)
+            {
+                player.stateMachine.ChangeState(PlayerStateID.Fall);
+            }
+        }
 
-    public void FixedUpdate(Player player)
-    {
-        
+        public void Exit(PlayerController player)
+        {
+            player.animator.SetBool("isGrounded", false);
+        }
+
+        void ResetAllAnimations(PlayerController player)
+        {
+            player.animator.SetBool("isGrounded", true);
+            player.animator.SetFloat("VelocityY", 0);
+            player.animator.SetFloat("MoveSpeed", 0);
+            player.animator.SetBool("isWallSliding", false);
+        }
+
+        public void FixedUpdate(PlayerController player)
+        {
+
+        }
     }
 }

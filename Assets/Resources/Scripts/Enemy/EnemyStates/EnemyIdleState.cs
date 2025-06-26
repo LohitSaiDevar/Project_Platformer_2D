@@ -2,35 +2,44 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class EnemyIdleState : IEnemyState
+namespace Enemies
 {
-    public EnemyStateID GetID()
+    public class EnemyIdleState : IEnemyState
     {
-        return EnemyStateID.Idle;
-    }
-    public void Enter(Enemy enemy)
-    {
-        enemy.ChangeAnimationState(Enemy.Enemy_Idle);
-    }
-    public void Update(Enemy enemy)
-    {
-        if (enemy.IsGrounded() && !enemy.PlayerInSight)
+        public EnemyStateID GetID()
         {
-            enemy.StartPatrol();
+            return EnemyStateID.Idle;
+        }
+        public void Enter(Enemy enemy)
+        {
+            enemy.ChangeAnimationState(Enemy.Enemy_Idle);
+            Debug.Log("Entered Idle State");
+        }
+        public void Update(Enemy enemy)
+        {
+            if (!enemy.IsGrounded())
+            {
+
+            }
+
+            if (enemy.IsGrounded() && !enemy.PlayerInSight && enemy is Grunt grunt)
+            {
+                grunt.StartPatrol();
+            }
+
+            if (enemy.IsGrounded() && enemy.PlayerInSight)
+            {
+                enemy.StartChasing();
+            }
+        }
+        public void Exit(Enemy enemy)
+        {
+
         }
 
-        if (enemy.IsGrounded() && enemy.PlayerInSight)
+        public void FixedUpdate(Enemy enemy)
         {
-            enemy.StartChasing();
+
         }
-    }
-    public void Exit(Enemy enemy)
-    {
-
-    }
-
-    public void FixedUpdate(Enemy enemy)
-    {
-        
     }
 }

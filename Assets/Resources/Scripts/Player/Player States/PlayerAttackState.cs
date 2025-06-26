@@ -2,36 +2,39 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class PlayerAttackState : IPlayerState
+namespace Player
 {
-    public PlayerStateID GetID()
+    public class PlayerAttackState : IPlayerState
     {
-        return PlayerStateID.Attack;
-    }
-
-    public void Enter(Player player)
-    {
-        player.ChangeAnimationState(Player.Player_Attack);
-        //Debug.Log("player attacks");
-        player.DealDamage();
-
-    }
-
-    public void Update(Player player)
-    {
-        if (player.animator.GetCurrentAnimatorStateInfo(0).normalizedTime >= 1f)
+        public PlayerStateID GetID()
         {
-            player.stateMachine.ChangeState(PlayerStateID.Idle);
+            return PlayerStateID.Attack;
         }
-    }
 
-    public void Exit(Player player)
-    {
-        
-    }
+        public void Enter(PlayerController player)
+        {
+            player.ChangeAnimationState(PlayerController.Player_Attack);
+            //Debug.Log("player attacks");
+            player.DealDamage();
 
-    public void FixedUpdate(Player player)
-    {
-        
+        }
+
+        public void Update(PlayerController player)
+        {
+            if (player.animator.GetCurrentAnimatorStateInfo(0).normalizedTime >= 1f)
+            {
+                player.stateMachine.ChangeState(PlayerStateID.Idle);
+            }
+        }
+
+        public void Exit(PlayerController player)
+        {
+
+        }
+
+        public void FixedUpdate(PlayerController player)
+        {
+
+        }
     }
 }

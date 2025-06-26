@@ -2,11 +2,14 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class AnimationEventTrigger_Enemy : MonoBehaviour
+namespace Enemies
 {
-    [SerializeField] Enemy enemy;
-    public void AttackPlayer()
+    public class AnimationEventTrigger_Enemy : MonoBehaviour
     {
-        enemy.DealDamage();
+        [SerializeField] Enemy enemy;
+        public void AttackPlayer()
+        {
+            enemy.Attack();
+        }
     }
 }

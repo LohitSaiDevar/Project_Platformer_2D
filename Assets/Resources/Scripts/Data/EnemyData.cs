@@ -3,9 +3,13 @@ using System.Collections.Generic;
 using UnityEngine;
 
 
-[CreateAssetMenu(fileName = "Enemy Data", menuName = "Scriptable Objects/Enemy Data")]
+[CreateAssetMenu(fileName = "Enemy Data", menuName = "Scriptable Objects/Data: Grunt")]
 public class EnemyData : ScriptableObject
 {
-    public int DamagePerHit;
+    [Header("Patrol Settings")]
+    public Transform pointA;
+    public float pointA_Radius;
+    public Transform pointB;
+    public float pointB_Radius;
     public int MaxHP;
 }

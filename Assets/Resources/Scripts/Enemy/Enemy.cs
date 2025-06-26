@@ -1,289 +1,267 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using Unity.IO.LowLevel.Unsafe;
 using UnityEngine;
+using Player;
 
-public class Enemy : MonoBehaviour
+namespace Enemies
 {
-    public Rigidbody2D rb;
-    public bool isFacingRight = true;
-    public Animator animator;
-    private string currentAnimationState;
-
-    public const string Enemy_Idle = "Enemy_Idle";
-    public const string Enemy_Run = "Enemy_Run";
-    public const string Enemy_Attack = "Enemy_Attack";
-    public const string Enemy_Hurt = "Enemy_Hurt";
-    public const string Enemy_Fall = "Enemy_Fall";
-    public const string Enemy_Death = "Enemy_Death";
-
-    [Header("Movement Settings")]
-    bool isPatrolling;
-    [SerializeField] bool startPatrol;
-    [SerializeField] float moveSpeed;
-    [SerializeField] Transform pointA;
-    [SerializeField] float pointA_Radius;
-    [SerializeField] Transform pointB;
-    [SerializeField] float pointB_Radius;
-    Transform currentPoint;
-    float currentPointDirection;
-
-    public EnemyStateMachine stateMachine;
-    [SerializeField] EnemyStateID initialState;
-
-    [Header("Chase Player Settings")]
-    [SerializeField] Transform pointOfVision;
-    bool playerInSight = false;
-    float directionToPlayer;
-    bool isChasing;
-    [SerializeField] float visionDistance;
-    [SerializeField] LayerMask playerLayer;
-    Player player;
-
-    [Header("Checks")]
-    [SerializeField] private Transform groundCheck;
-    [SerializeField] private LayerMask groundLayer;
-
-    [SerializeField] float knockBackForce;
-    bool isHurt;
-
-
-    [Header("Attack Settings")]
-    [SerializeField] Transform attackPoint;
-    [SerializeField] float attackRange;
-    [SerializeField] LayerMask attackLayer;
-    private bool isAttacking;
-
-
-    [Header("Health System")]
-    HealthSystem_Enemy healthSystem;
-    [SerializeField] EnemyData enemyData;
-    bool isDead;
-    #region Start, Update, FixedUpdate
-    void Start()
+    public class Enemy : MonoBehaviour, IDamageable, IChaseable
     {
-        rb = GetComponent<Rigidbody2D>();
-        stateMachine = new EnemyStateMachine(this);
-        stateMachine.RegisterState(new EnemyIdleState());
-        stateMachine.RegisterState(new EnemyRunState());
-        stateMachine.RegisterState(new EnemyHurtState());
-        stateMachine.RegisterState(new EnemyAttackState());
-        stateMachine.RegisterState(new EnemyPatrolState());
-        stateMachine.RegisterState(new EnemyChaseState());
-        stateMachine.RegisterState(new EnemyDeathState());
-        stateMachine.ChangeState(initialState);
+        public PlayerController player;
+        public Rigidbody2D rb;
+        public bool isFacingRight = true;
 
-        currentPoint = pointA;
+        public EnemyStateMachine stateMachine;
 
-        healthSystem = new HealthSystem_Enemy(enemyData.MaxHP);
-    }
-    // Update is called once per frame
-    void Update()
-    {
-        stateMachine.Update();
+        public float moveSpeed;
+        bool playerInSight = false;
+        bool isChasing;
+
+        [Header("Checks")]
+        [SerializeField] protected Transform groundCheck;
+        [SerializeField] protected Transform groundCheckAhead;
+        [SerializeField] protected Transform wallCheck;
+        [SerializeField] protected LayerMask groundLayer;
+        [SerializeField] protected LayerMask wallLayer;
+        [SerializeField] protected float wallDetectionDistance = 0.5f; // How far to check for walls ahead
+
+        [Header("Health System")]
+        public HealthSystem_Enemy healthSystem;
         
-    }
+        bool isDead;
 
-    private void FixedUpdate()
-    {
-        stateMachine.FixedUpdate();
-        if (!isHurt && !isDead)
+        #region Start, Update, FixedUpdate, Register States
+        protected virtual void Awake()
         {
-            DetectPlayer();
-
-            if (!IsAttacking)
-            {
-                CheckRightOrLeft();
-            }
+            RegisterAllStates();
         }
-    }
-
-    #endregion
-    public void ChangeAnimationState(string newAnimationState)
-    {
-        if (currentAnimationState == newAnimationState) return;
-        animator.Play(newAnimationState);
-        currentAnimationState = newAnimationState;
-        //Debug.Log("Current Animation: " +  newAnimationState);
-    }
-
-    #region Attack, Hurt
-    public void TakeDamage(int damage)
-    {
-        healthSystem.DamageTaken(damage);
-        Debug.Log("Damage% dealt: " +  healthSystem.GetHealthPercent());
-        stateMachine.ChangeState(EnemyStateID.Hurt);
-
-    }
-
-    public HealthSystem_Enemy HealthSystem
-    {
-        get { return healthSystem; }
-        set { healthSystem = value; }
-    }
-
-    public bool IsDead
-    {
-        get { return isDead; }
-        set { isDead = value; }
-    }
-    public void DealDamage()
-    {
-        Collider2D[] hits = Physics2D.OverlapCircleAll(attackPoint.transform.position, attackRange, attackLayer);
-
-        foreach (Collider2D hit in hits)
+        // Update is called once per frame
+        protected virtual void Update()
         {
-            Player player = hit.GetComponentInParent<Player>();
-            player.stateMachine.ChangeState(PlayerStateID.Hurt);
-            Debug.Log("Player has been hit: " + hit.gameObject.name); // Optional debug
+            stateMachine.Update();
         }
-    }
 
-    public bool IsAttacking
-    {
-        get { return isAttacking; }
-        set { isAttacking = value; }
-    }
-    #endregion
-
-    public bool IsGrounded()
-    {
-        return Physics2D.OverlapCircle(groundCheck.position, 0.2f, groundLayer);
-    }
-    #region Flip
-    public void FlipCharacter()
-    {
-        isFacingRight = !isFacingRight;
-        Vector3 localScale = transform.localScale;
-        localScale.x *= -1f;
-        transform.localScale = localScale;
-    }
-
-    void CheckRightOrLeft()
-    {
-        if (rb.velocity.x > 0 && !isFacingRight)
+        protected virtual void FixedUpdate()
         {
-            FlipCharacter();
-        }
+            stateMachine.FixedUpdate();
             
-        else if (rb.velocity.x < 0 && isFacingRight)
-        {
-            FlipCharacter();
-        }
-    }
-    #endregion
-
-    #region Patrol
-    public bool IsPatrolling
-    {
-        get { return isPatrolling; }
-        set { isPatrolling = value; }
-    }
-    public bool IsFacingRight
-    {
-        get { return isFacingRight; }
-        set { isFacingRight = value; }
-    }
-    public void StartPatrol()
-    {
-        stateMachine.ChangeState(EnemyStateID.Patrol);
-    }
-    public void Patrolling()
-    {
-        currentPointDirection = currentPoint.position.x - transform.position.x;
-        if (currentPoint == pointB)
-        {
-            rb.velocity = new Vector2(Mathf.Sign(currentPointDirection) * moveSpeed, 0);
-        }
-        else
-        {
-            rb.velocity = new Vector2(Mathf.Sign(currentPointDirection) * moveSpeed, 0);
         }
 
-        if (currentPoint == pointA && Vector2.Distance(transform.position, currentPoint.position) < 0.5f)
+        protected virtual void RegisterAllStates()
         {
-            currentPoint = pointB;
+            stateMachine = new EnemyStateMachine(this);
+            stateMachine.RegisterState(new EnemyIdleState());
+            stateMachine.RegisterState(new EnemyRunState());
+            stateMachine.RegisterState(new EnemyChaseState());
+            stateMachine.RegisterState(new EnemyAttackState());
+            stateMachine.RegisterState(new EnemyHurtState());
+            stateMachine.RegisterState(new EnemyDeathState());
+            stateMachine.ChangeState(initialState);
+        }
+        #endregion
+
+        #region OnEnable, OnDisable
+
+        private void OnEnable()
+        {
+            GameEvents.OnPlayerAttack += TakeDamage;
+        }
+        private void OnDisable()
+        {
+            GameEvents.OnPlayerAttack -= TakeDamage;
         }
 
-        if (currentPoint == pointB && Vector2.Distance(transform.position, currentPoint.position) < 0.5f)
+        #endregion
+
+        #region Animation
+
+        //Animation settings
+        public Animator animator;
+        public string currentAnimationState;
+        [SerializeField] EnemyStateID initialState;
+        public const string Enemy_Idle = "Enemy_Idle";
+        public const string Enemy_Run = "Enemy_Run";
+        public const string Enemy_Attack = "Enemy_Attack";
+        public const string Enemy_Hurt = "Enemy_Hurt";
+        public const string Enemy_Fall = "Enemy_Fall";
+        public const string Enemy_Death = "Enemy_Death";
+
+        public void ChangeAnimationState(string newAnimationState)
         {
-            currentPoint = pointA;
+            if (currentAnimationState == newAnimationState) return;
+            animator.Play(newAnimationState);
+            currentAnimationState = newAnimationState;
+            Debug.Log("Current Animation: " +  newAnimationState);
         }
-    }
-    #endregion
+        
+        #endregion
 
-    #region Gizmos
-    private void OnDrawGizmosSelected()
-    {
-        Gizmos.DrawWireSphere(pointA.position, pointA_Radius);
-        Gizmos.DrawWireSphere(pointB.position, pointB_Radius);
+        #region Attack, Hurt
 
-        Gizmos.DrawLine(pointA.position, pointB.position);
+        [Header("Attack Settings")]
+        public Transform attackPoint;
+        public float attackRange;
+        public LayerMask attackLayer;
+        private bool isAttacking;
+        public float directionToPlayer;
 
-        if (attackPoint != null)
+        public float knockBackForce;
+        Vector2 knockBackDirection;
+        bool isHurt;
+        public void Attack()
         {
-            Gizmos.DrawWireSphere(attackPoint.position, attackRange);
+            stateMachine.ChangeState(EnemyStateID.Attack);
         }
-    }
-    #endregion
 
-    #region Chase
-    void DetectPlayer()
-    {
-        float direction = transform.localScale.x > 0 ? 1 : -1;
-
-        RaycastHit2D hit = Physics2D.Raycast(pointOfVision.position, Vector2.right * direction, visionDistance, playerLayer);
-        Debug.DrawRay(pointOfVision.position, Vector2.right * direction * visionDistance, Color.red);
-
-
-        if (hit.collider != null)
+        public void DealDamage()
         {
-            playerInSight = true;
-            player = hit.collider.GetComponentInParent<Player>();
-            directionToPlayer = player.transform.position.x - transform.position.x;
-            if (Vector2.Distance(transform.position, player.transform.position) < 1f && !isAttacking && !player.IsDead)
+            Collider2D[] hits = Physics2D.OverlapCircleAll(attackPoint.transform.position, attackRange, attackLayer);
+
+            foreach (Collider2D hit in hits)
             {
-                //Debug.Log("Working");
-                stateMachine.ChangeState(EnemyStateID.Attack);
+                GameEvents.OnEnemyAttack();
+                Debug.Log("Player has been hit: " + hit.gameObject.name); // Optional debug
             }
         }
-        else
+
+        public void TakeDamage(int dmg, Vector3 playerPos)
         {
-            playerInSight = false;
+            directionToPlayer = Mathf.Sign(playerPos.x - transform.position.x);
+            playerInSight = true;
+
+            stateMachine.ChangeState(EnemyStateID.Hurt);
+            healthSystem.DamageTaken(dmg);
         }
-    }
 
-    public bool PlayerInSight
-    {
-        get { return playerInSight; }
-        set { playerInSight = value; }
-    }
-    public bool IsChasing
-    {
-        get { return isChasing; }
-        set { isChasing = value; }
-    }
-    public void StartChasing()
-    {
-        stateMachine.ChangeState(EnemyStateID.Chase);
-    }
+        public void HurtToIdle()
+        {
+            StartCoroutine(HurtToIdleCoroutine());
+        }
 
-    public void ChasePlayer()
-    {
-        rb.velocity = new Vector2(Mathf.Sign(directionToPlayer) * moveSpeed, 0);
-    }
+        private IEnumerator HurtToIdleCoroutine()
+        {
+            ChangeAnimationState(Enemy_Hurt);
+            yield return new WaitForSeconds(0.5f);
 
-    #endregion
+            if (HealthSystem.GetHealthPercent() <= 0)
+            {
+                stateMachine.ChangeState(EnemyStateID.Death);
+            }
+            else
+            {
+                stateMachine.ChangeState(EnemyStateID.Idle);
+            }
+        }
+        public HealthSystem_Enemy HealthSystem
+        {
+            get { return healthSystem; }
+            set { healthSystem = value; }
+        }
 
-    public float KnockBackForce
-    {
-        get { return knockBackForce; }
-        set { knockBackForce = value; }
-    }
+        public bool IsDead
+        {
+            get { return isDead; }
+            set { isDead = value; }
+        }
 
-    public bool IsHurt
-    {
-        get { return isHurt; }
-        set { isHurt = value; }
+
+        public bool IsAttacking
+        {
+            get { return isAttacking; }
+            set { isAttacking = value; }
+        }
+        #endregion
+
+        public virtual bool IsGrounded()
+        {
+            return Physics2D.OverlapCircle(groundCheck.position, 0.2f, groundLayer);
+        }
+        public virtual bool IsGroundAhead()
+        {
+            return Physics2D.OverlapCircle(groundCheckAhead.position, 0.2f, groundLayer);
+        }
+
+        protected bool IsWalled()
+        {
+            return Physics2D.OverlapCircle(wallCheck.position, 0.2f, wallLayer);
+        }
+        #region Flip
+
+
+        public void FlipCharacter()
+        {
+            isFacingRight = !isFacingRight;
+            Vector3 localScale = transform.localScale;
+            localScale.x *= -1f;
+            transform.localScale = localScale;
+        }
+
+        public void FaceDirection(float direction)
+        {
+            if ((direction > 0 && !isFacingRight) || (direction < 0 && isFacingRight))
+            {
+                FlipCharacter();
+            }
+        }
+        #endregion
+        #region Gizmos
+        protected virtual void OnDrawGizmosSelected()
+        {
+            if (attackPoint != null)
+            {
+                Gizmos.DrawWireSphere(attackPoint.position, attackRange);
+            }
+        }
+        #endregion
+
+        #region Move and Chase
+
+
+        public bool PlayerInSight
+        {
+            get { return playerInSight; }
+            set { playerInSight = value; }
+        }
+        public bool IsChasing
+        {
+            get { return isChasing; }
+            set { isChasing = value; }
+        }
+        public void StartChasing()
+        {
+            stateMachine.ChangeState(EnemyStateID.Chase);
+        }
+        
+        public void Move(float direction)
+        {
+            FaceDirection(direction);
+            rb.velocity = new Vector2(direction * moveSpeed, 0);
+        }
+        public virtual void Chase()
+        {
+            Move(Mathf.Sign(directionToPlayer));
+        }
+
+        #endregion
+
+        public float KnockBackForce
+        {
+            get { return knockBackForce; }
+            set { knockBackForce = value; }
+        }
+
+        public Vector2 KnockBackDirection
+        {
+            get { return knockBackDirection; }
+            set { knockBackDirection = value; }
+        }
+
+        public bool IsHurt
+        {
+            get { return isHurt; }
+            set { isHurt = value; }
+        }
     }
 }

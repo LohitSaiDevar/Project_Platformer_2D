@@ -3,43 +3,46 @@ using System.Collections;
 using UnityEngine;
 using static UnityEngine.RuleTile.TilingRuleOutput;
 
-public class PlayerWallJumpState : IPlayerState
+namespace Player
 {
-    public PlayerStateID GetID()
+    public class PlayerWallJumpState : IPlayerState
     {
-        return PlayerStateID.WallJump;
-    }
-
-    public void Enter(Player player)
-    {
-        player.StartWallJump = false;
-        player.IsWallJumping = true;
-        player.ChangeAnimationState(Player.Player_Jump);
-        player.rb.velocity = new Vector2(player.wallJumpingDirection * player.wallJumpingPower.x, player.wallJumpingPower.y);
-        if ((player.wallJumpingDirection > 0 && !player.IsFacingRight) ||
-            (player.wallJumpingDirection < 0 && player.IsFacingRight))
+        public PlayerStateID GetID()
         {
-            player.FlipCharacter_Alt();
+            return PlayerStateID.WallJump;
         }
-        // Apply jump force once instead of every frame
-    }
 
-    public void Update(Player player)
-    {
-
-        if (player.rb.velocity.y < 0)
+        public void Enter(PlayerController player)
         {
-            player.stateMachine.ChangeState(PlayerStateID.Fall);
+            player.StartWallJump = false;
+            player.IsWallJumping = true;
+            player.ChangeAnimationState(PlayerController.Player_Jump);
+            player.rb.velocity = new Vector2(player.wallJumpingDirection * player.wallJumpingPower.x, player.wallJumpingPower.y);
+            if ((player.wallJumpingDirection > 0 && !player.IsFacingRight) ||
+                (player.wallJumpingDirection < 0 && player.IsFacingRight))
+            {
+                player.FlipCharacter_Alt();
+            }
+            // Apply jump force once instead of every frame
         }
-    }
 
-    public void Exit(Player player)
-    {
-        player.IsWallJumping = false;
-    }
+        public void Update(PlayerController player)
+        {
 
-    public void FixedUpdate(Player player)
-    {
-        
+            if (player.rb.velocity.y < 0)
+            {
+                player.stateMachine.ChangeState(PlayerStateID.Fall);
+            }
+        }
+
+        public void Exit(PlayerController player)
+        {
+            player.IsWallJumping = false;
+        }
+
+        public void FixedUpdate(PlayerController player)
+        {
+
+        }
     }
 }

@@ -2,45 +2,47 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class PlayerHurtState : IPlayerState
+namespace Player
 {
-    public PlayerStateID GetID()
+    public class PlayerHurtState : IPlayerState
     {
-        return PlayerStateID.Hurt;
-    }
-
-    public void Enter(Player player)
-    {
-        player.IsHurt = true;
-        Debug.Log("Animation is playing");
-        player.ChangeAnimationState(Player.Player_Hurt);
-
-        GameObject hp = player.HealthPoints[player.HealthPoints.Count - 1];
-        player.HealthPoints.RemoveAt(player.HealthPoints.Count - 1);
-        Player.Destroy(hp);
-    }
-
-    public void Update(Player player)
-    {
-        if (player.animator.GetCurrentAnimatorStateInfo(0).normalizedTime >= 1)
+        public PlayerStateID GetID()
         {
-            player.stateMachine.ChangeState(PlayerStateID.Idle);
+            return PlayerStateID.Hurt;
         }
 
-        if (player.HealthPoints.Count == 0)
+        public void Enter(PlayerController player)
         {
-            player.stateMachine.ChangeState(PlayerStateID.Death);
+            player.IsHurt = true;
+            Debug.Log("Animation is playing");
+            player.ChangeAnimationState(PlayerController.Player_Hurt);
+
+            GameObject hp = player.HealthPoints[player.HealthPoints.Count - 1];
+            player.HealthPoints.RemoveAt(player.HealthPoints.Count - 1);
+            PlayerController.Destroy(hp);
         }
-    }
 
-    public void Exit(Player player)
-    {
-        player.IsHurt = false;
-    }
+        public void Update(PlayerController player)
+        {
+            if (player.animator.GetCurrentAnimatorStateInfo(0).normalizedTime >= 1)
+            {
+                player.stateMachine.ChangeState(PlayerStateID.Idle);
+            }
 
-    public void FixedUpdate(Player player)
-    {
-        
+            if (player.HealthPoints.Count == 0)
+            {
+                player.stateMachine.ChangeState(PlayerStateID.Death);
+            }
+        }
+
+        public void Exit(PlayerController player)
+        {
+            player.IsHurt = false;
+        }
+
+        public void FixedUpdate(PlayerController player)
+        {
+
+        }
     }
 }
-

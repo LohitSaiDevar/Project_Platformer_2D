@@ -2,40 +2,43 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class PlayerRunState : IPlayerState
+namespace Player
 {
-    public PlayerStateID GetID()
+    public class PlayerRunState : IPlayerState
     {
-        return PlayerStateID.Run;
-    }
-
-    public void Enter(Player player)
-    {
-        //Debug.Log("Run State!");
-        player.IsRunning = true;
-    }
-
-    public void Update(Player player)
-    {
-        player.ChangeAnimationState(Player.Player_Run);
-        if (Mathf.Abs(player.HorizontalInput) < 0.5f && player.IsGrounded())
+        public PlayerStateID GetID()
         {
-            player.stateMachine.ChangeState(PlayerStateID.Idle);
+            return PlayerStateID.Run;
         }
 
-        if (!player.IsGrounded() && player.rb.velocity.y < 0)
+        public void Enter(PlayerController player)
         {
-            player.stateMachine.ChangeState(PlayerStateID.Fall);
+            //Debug.Log("Run State!");
+            player.IsRunning = true;
         }
-    }
 
-    public void Exit(Player player)
-    {
-        player.IsRunning = false;
-    }
+        public void Update(PlayerController player)
+        {
+            player.ChangeAnimationState(PlayerController.Player_Run);
+            if (Mathf.Abs(player.HorizontalInput) < 0.5f && player.IsGrounded())
+            {
+                player.stateMachine.ChangeState(PlayerStateID.Idle);
+            }
 
-    public void FixedUpdate(Player player)
-    {
-        player.MovePlayer();
+            if (!player.IsGrounded() && player.rb.velocity.y < 0 && !player.IsJumping)
+            {
+                player.stateMachine.ChangeState(PlayerStateID.Fall);
+            }
+        }
+
+        public void Exit(PlayerController player)
+        {
+            player.IsRunning = false;
+        }
+
+        public void FixedUpdate(PlayerController player)
+        {
+            player.MovePlayer();
+        }
     }
 }

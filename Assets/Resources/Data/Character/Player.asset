@@ -13,5 +13,5 @@ MonoBehaviour:
   m_Name: Player
   m_EditorClassIdentifier: 
   Name: Player
-  MaxHealthPoints: 3
-  MaxDamagePerHit: 20
+  MaxHP: 0
+  MaxAtk: 20

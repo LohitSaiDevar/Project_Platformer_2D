@@ -2,32 +2,36 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class PlayerDeathState : IPlayerState
+namespace Player
 {
-    public PlayerStateID GetID()
+    public class PlayerDeathState : IPlayerState
     {
-        return PlayerStateID.Death;
+        public PlayerStateID GetID()
+        {
+            return PlayerStateID.Death;
+        }
+
+        public void Enter(PlayerController player)
+        {
+            player.IsDead = true;
+            player.ChangeAnimationState(PlayerController.Player_Death);
+            //player.GetComponentInChildren<Collider2D>().enabled = false;
+        }
+
+        public void FixedUpdate(PlayerController player)
+        {
+
+        }
+
+        public void Update(PlayerController player)
+        {
+
+        }
+
+        public void Exit(PlayerController player)
+        {
+            player.IsDead = false;
+        }
     }
 
-    public void Enter(Player player)
-    {
-        player.IsDead = true;
-        player.ChangeAnimationState(Player.Player_Death);
-        //player.GetComponentInChildren<Collider2D>().enabled = false;
-    }
-
-    public void FixedUpdate(Player player)
-    {
-        
-    }
-
-    public void Update(Player player)
-    {
-        
-    }
-
-    public void Exit(Player player)
-    {
-        player.IsDead = false;
-    }
 }

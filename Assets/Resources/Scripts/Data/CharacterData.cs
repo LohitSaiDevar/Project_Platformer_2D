@@ -6,6 +6,6 @@ using UnityEngine;
 public class CharacterData : ScriptableObject
 {
     public string Name;
-    public int MaxHealthPoints;
-    public int MaxDamagePerHit;
+    public int MaxHP;
+    public int MaxAtk;
 }

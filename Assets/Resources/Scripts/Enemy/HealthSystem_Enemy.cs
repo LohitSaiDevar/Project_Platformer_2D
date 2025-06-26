@@ -1,45 +1,50 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 
-public class HealthSystem_Enemy
+namespace Enemies
 {
-    int health;
-    int healthMax;
-
-    public HealthSystem_Enemy(int health)
+    public class HealthSystem_Enemy
     {
-        this.health = health;
-        healthMax = health;
-    }
-
-    public int GetHealth()
-    {
-        return health;
-    }
-
-    public float GetHealthPercent()
-    {
-        return (float)health / healthMax;
-    }
-
-    public void DamageTaken(int damage)
-    {
-        health -= damage;
-
-        if (health < 0)
+        int health;
+        int healthMax;
+        public HealthSystem_Enemy(int health)
         {
-            health = 0;
+            this.health = health;
+            healthMax = health;
         }
-    }
 
-    public void Heal(int healAmount)
-    {
-        health += healAmount;
-
-        if (health > healthMax)
+        public int GetHealth()
         {
-            health = healthMax;
+            return health;
+        }
+
+        public float GetHealthPercent()
+        {
+            return ((float)health / healthMax) * 100;
+        }
+
+        public void DamageTaken(int damage)
+        {
+            health -= damage;
+            Debug.Log("health: " + health);
+            Debug.Log("HPpercent: " + GetHealthPercent());
+
+            if (health < 0)
+            {
+                health = 0;
+            }
+        }
+
+        public void Heal(int healAmount)
+        {
+            health += healAmount;
+
+            if (health > healthMax)
+            {
+                health = healthMax;
+            }
         }
     }
 }

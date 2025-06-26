@@ -41,3 +41,30 @@ TagManager:
   - name: Default
     uniqueID: 0
     locked: 0
+  - name: City
+    uniqueID: 2195781547
+    locked: 0
+  - name: City_2
+    uniqueID: 3554395839
+    locked: 0
+  - name: Fire
+    uniqueID: 139888097
+    locked: 0
+  - name: Statue
+    uniqueID: 501523857
+    locked: 0
+  - name: Bush
+    uniqueID: 1561560133
+    locked: 0
+  - name: Characters
+    uniqueID: 3855315249
+    locked: 0
+  - name: Grass
+    uniqueID: 3534648267
+    locked: 0
+  - name: Ground
+    uniqueID: 3443647421
+    locked: 0
+  - name: Wall
+    uniqueID: 623408657
+    locked: 0

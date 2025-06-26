@@ -2,24 +2,28 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public enum PlayerStateID
+namespace Player
 {
-    Idle,
-    Run,
-    Attack,
-    Jump,
-    WallJump,
-    WallSlide,
-    Hurt,
-    Fall,
-    Death
-}
+    public enum PlayerStateID
+    {
+        Idle,
+        Run,
+        Attack,
+        Jump,
+        WallJump,
+        WallSlide,
+        Hurt,
+        Fall,
+        Death
+    }
 
-public interface IPlayerState
-{
-    PlayerStateID GetID();
-    void Enter(Player player);
-    void Update(Player player);
-    void FixedUpdate(Player player);
-    void Exit(Player player);
+    public interface IPlayerState
+    {
+        PlayerStateID GetID();
+        void Enter(PlayerController player);
+        void Update(PlayerController player);
+        void FixedUpdate(PlayerController player);
+        void Exit(PlayerController player);
+    }
+
 }

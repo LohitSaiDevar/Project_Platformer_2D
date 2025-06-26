@@ -2,38 +2,50 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class EnemyPatrolState : IEnemyState
+namespace Enemies
 {
-    public EnemyStateID GetID()
+    public class EnemyPatrolState : IEnemyState
     {
-        return EnemyStateID.Patrol;
-    }
-
-    public void Enter(Enemy enemy)
-    {
-        enemy.IsPatrolling = true;
-        //Debug.Log("Started Patrol");
-    }
-
-    public void Update(Enemy enemy)
-    {
-        enemy.ChangeAnimationState(Enemy.Enemy_Run);
-
-        if (enemy.PlayerInSight)
+        Grunt grunt;
+        public EnemyStateID GetID()
         {
-            enemy.StartChasing();
+            return EnemyStateID.Patrol;
+        }
+
+        public void Enter(Enemy enemy)
+        {
+            if (enemy is Grunt grunt)
+            {
+                grunt.IsPatrolling = true;
+            }
+            //Debug.Log("Started Patrol");
+        }
+
+        public void Update(Enemy enemy)
+        {
+            enemy.ChangeAnimationState(Enemy.Enemy_Run);
+
+            if (enemy.PlayerInSight)
+            {
+                enemy.StartChasing();
+            }
+        }
+
+        public void FixedUpdate(Enemy enemy)
+        {
+            if (enemy is Grunt grunt)
+            {
+                grunt.Patrolling();
+                grunt.DetectPlayer();
+            }
+        }
+
+        public void Exit(Enemy enemy)
+        {
+            if (enemy is Grunt grunt)
+            {
+                grunt.IsPatrolling = false;
+            }
         }
     }
-
-    public void FixedUpdate(Enemy enemy)
-    {
-        enemy.Patrolling();
-    }
-
-    public void Exit(Enemy enemy)
-    {
-        enemy.IsPatrolling = false;
-    }
-
-    
 }

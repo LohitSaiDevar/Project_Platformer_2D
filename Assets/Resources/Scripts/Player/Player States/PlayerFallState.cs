@@ -2,37 +2,40 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class PlayerFallState : IPlayerState
+namespace Player
 {
-    public PlayerStateID GetID()
+    public class PlayerFallState : IPlayerState
     {
-        return PlayerStateID.Fall;
-    }
-
-    public void Enter(Player player)
-    {
-        player.IsFalling = true;
-    }
-
-    public void Update(Player player)
-    {
-        
-        player.ChangeAnimationState(Player.Player_Fall);
-        //Debug.Log("Is falling");
-        if (player.IsGrounded())
+        public PlayerStateID GetID()
         {
-            player.stateMachine.ChangeState(PlayerStateID.Idle);
+            return PlayerStateID.Fall;
         }
-        player.HandleWallSlide();
-    }
 
-    public void Exit(Player player)
-    {
-        player.IsFalling = false;
-    }
+        public void Enter(PlayerController player)
+        {
+            player.IsFalling = true;
+        }
 
-    public void FixedUpdate(Player player)
-    {
-        player.MovePlayer();
+        public void Update(PlayerController player)
+        {
+
+            player.ChangeAnimationState(PlayerController.Player_Fall);
+            //Debug.Log("Is falling");
+            if (player.IsGrounded())
+            {
+                player.stateMachine.ChangeState(PlayerStateID.Idle);
+            }
+            player.HandleWallSlide();
+        }
+
+        public void Exit(PlayerController player)
+        {
+            player.IsFalling = false;
+        }
+
+        public void FixedUpdate(PlayerController player)
+        {
+            player.MovePlayer();
+        }
     }
 }

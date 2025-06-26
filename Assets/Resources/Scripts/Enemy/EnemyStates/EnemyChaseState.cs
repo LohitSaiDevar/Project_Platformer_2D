@@ -2,35 +2,44 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class EnemyChaseState : IEnemyState
+namespace Enemies
 {
-    public EnemyStateID GetID()
+    public class EnemyChaseState : IEnemyState
     {
-        return EnemyStateID.Chase;
-    }
-
-    public void Enter(Enemy enemy)
-    {
-        enemy.IsChasing = true;
-    }
-
-    public void Update(Enemy enemy)
-    {
-        enemy.ChangeAnimationState(Enemy.Enemy_Run);
-
-        if (!enemy.PlayerInSight)
+        public EnemyStateID GetID()
         {
-            enemy.StartPatrol();
+            return EnemyStateID.Chase;
         }
-    }
 
-    public void Exit(Enemy enemy)
-    {
-        enemy.IsChasing = false;
-    }
+        public void Enter(Enemy enemy)
+        {
+            enemy.IsChasing = true;
+            enemy.ChangeAnimationState(Enemy.Enemy_Run);
+        }
 
-    public void FixedUpdate(Enemy enemy)
-    {
-        enemy.ChasePlayer();
+        public void Update(Enemy enemy)
+        {
+            if (!enemy.PlayerInSight && enemy is Grunt grunt)
+            {
+                grunt.StartPatrol();
+            }
+
+            if (enemy.player != null)
+            {
+                float playerX = enemy.player.transform.position.x;
+                float enemyX = enemy.transform.position.x;
+                enemy.directionToPlayer = Mathf.Sign(playerX - enemyX);
+            }
+        }
+
+        public void Exit(Enemy enemy)
+        {
+            enemy.IsChasing = false;
+        }
+
+        public void FixedUpdate(Enemy enemy)
+        {
+            enemy.Chase();
+        }
     }
 }
